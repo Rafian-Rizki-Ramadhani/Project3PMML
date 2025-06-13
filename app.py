@@ -37,7 +37,7 @@ PROTOCOL_OPTIONS = ["TCP", "UDP", "ICMP"]
 ENCRYPTION_OPTIONS_DROPDOWN = ["AES", "DES", "None"]
 ENCRYPTION_OPTIONS_MODEL = ["AES", "DES", "unencrypted"]
 
-DEFAULT_THREAT_THRESHOLD = 0.5
+DEFAULT_THREAT_THRESHOLD = 0.8
 # ======================================================================================
 # FUNGSI-FUNGSI BANTU
 # ======================================================================================
