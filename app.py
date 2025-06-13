@@ -78,10 +78,11 @@ def preprocess_dataframe(df_input, scaler):
     df_processed = df_combined.reindex(columns=FEATURE_ORDER, fill_value=0)
     return df_processed
 
-def model_prediksi_ancaman_dataset(model, df_processed):
+def model_prediksi_ancaman_dataset(model, df_processed, threshold=0.5): # Add threshold parameter
     if df_processed.empty: return pd.DataFrame()
-    predictions = model.predict(df_processed)
     prediction_probas = model.predict_proba(df_processed)
+    # Apply custom threshold
+    predictions = (prediction_probas[:, 1] >= threshold).astype(int) # This line changes
     df_hasil = pd.DataFrame({
         'Status Deteksi': ['Terancam' if p == 1 else 'Aman' for p in predictions],
         'Probabilitas Ancaman (%)': (prediction_probas[:, 1] * 100).round(2)
