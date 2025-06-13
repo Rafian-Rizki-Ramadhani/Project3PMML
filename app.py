@@ -172,7 +172,7 @@ else:
 
             with st.spinner("Melakukan prediksi..."):
                 df_processed = preprocess_dataframe(df_manual, scaler)
-                df_prediction = model_prediksi_ancaman_dataset(model, df_processed, threshold=st.session_state.current_threshold)
+                df_prediction = model_prediksi_ancaman_dataset(model, df_processed)
                 status = df_prediction['Status Deteksi'].iloc[0]
                 probabilitas = df_prediction['Probabilitas Ancaman (%)'].iloc[0]
                 st.markdown("---"); st.subheader("🔍 Hasil Prediksi Manual")
@@ -208,7 +208,7 @@ else:
                 if st.button("🚀 Jalankan Analisis File", type="primary"):
                     with st.spinner("Menganalisis data..."):
                         df_processed = preprocess_dataframe(df_input_original, scaler)
-                        df_prediction = model_prediksi_ancaman_dataset(model, df_processed, threshold=st.session_state.current_threshold)
+                        df_prediction = model_prediksi_ancaman_dataset(model, df_processed)
                         df_final = pd.concat([df_input_original.reset_index(drop=True), df_prediction.reset_index(drop=True)], axis=1)
                         
                         st.markdown("---"); st.subheader("📊 Dashboard Hasil Analisis")
