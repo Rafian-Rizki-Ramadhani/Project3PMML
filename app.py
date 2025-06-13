@@ -37,6 +37,7 @@ PROTOCOL_OPTIONS = ["TCP", "UDP", "ICMP"]
 ENCRYPTION_OPTIONS_DROPDOWN = ["AES", "DES", "None"]
 ENCRYPTION_OPTIONS_MODEL = ["AES", "DES", "unencrypted"]
 
+DEFAULT_THREAT_THRESHOLD = 0.5
 # ======================================================================================
 # FUNGSI-FUNGSI BANTU
 # ======================================================================================
@@ -78,13 +79,16 @@ def preprocess_dataframe(df_input, scaler):
     df_processed = df_combined.reindex(columns=FEATURE_ORDER, fill_value=0)
     return df_processed
 
-def model_prediksi_ancaman_dataset(model, df_processed, threshold=0.5): # Add threshold parameter
+def model_prediksi_ancaman_dataset(model, df_processed, threshold=DEFAULT_THREAT_THRESHOLD):
     if df_processed.empty: return pd.DataFrame()
     prediction_probas = model.predict_proba(df_processed)
-    # Apply custom threshold
-    predictions = (prediction_probas[:, 1] >= threshold).astype(int) # This line changes
+
+    # Prediksi berdasarkan ambang batas kustom
+    # Mengubah np.where (atau if p==1) menjadi perbandingan dengan threshold
+    predictions_binary = (prediction_probas[:, 1] >= threshold).astype(int)
+
     df_hasil = pd.DataFrame({
-        'Status Deteksi': ['Terancam' if p == 1 else 'Aman' for p in predictions],
+        'Status Deteksi': ['Terancam' if p == 1 else 'Aman' for p in predictions_binary],
         'Probabilitas Ancaman (%)': (prediction_probas[:, 1] * 100).round(2)
     })
     return df_hasil
@@ -168,7 +172,7 @@ else:
 
             with st.spinner("Melakukan prediksi..."):
                 df_processed = preprocess_dataframe(df_manual, scaler)
-                df_prediction = model_prediksi_ancaman_dataset(model, df_processed)
+                df_prediction = model_prediksi_ancaman_dataset(model, df_processed, threshold=st.session_state.current_threshold)
                 status = df_prediction['Status Deteksi'].iloc[0]
                 probabilitas = df_prediction['Probabilitas Ancaman (%)'].iloc[0]
                 st.markdown("---"); st.subheader("🔍 Hasil Prediksi Manual")
@@ -204,7 +208,7 @@ else:
                 if st.button("🚀 Jalankan Analisis File", type="primary"):
                     with st.spinner("Menganalisis data..."):
                         df_processed = preprocess_dataframe(df_input_original, scaler)
-                        df_prediction = model_prediksi_ancaman_dataset(model, df_processed)
+                        df_prediction = model_prediksi_ancaman_dataset(model, df_processed, threshold=st.session_state.current_threshold)
                         df_final = pd.concat([df_input_original.reset_index(drop=True), df_prediction.reset_index(drop=True)], axis=1)
                         
                         st.markdown("---"); st.subheader("📊 Dashboard Hasil Analisis")
